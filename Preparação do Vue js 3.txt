@@ -1,0 +1,113 @@
+Vue Js 3 + Vite
+
+    node -v
+
+    npm -v
+
+    npm install npm@latest -g
+
+    npm init vue@latest
+
+    cd <your-project-name>
+    npm install
+    npm run dev
+
+
+Vue Router
+
+
+    npm create vue@latest7
+
+
+
+
+
+<template>
+  <div id="app">
+    <h1>Todo List</h1>
+    <input v-model="newTask" @keyup.enter="addTask" placeholder="Add a new task" />
+    <button @click="addTask">Add Task</button>
+    <ul>
+      <li v-for="(task, index) in tasks" :key="index">
+        <input v-model="task.text" @blur="updateTask(index)" />
+        <button @click="deleteTask(index)">Delete</button>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      newTask: '',
+      tasks: []
+    };
+  },
+  created() {
+    this.loadTasks();
+  },
+  methods: {
+    loadTasks() {
+      const tasks = localStorage.getItem('tasks');
+      this.tasks = tasks ? JSON.parse(tasks) : [];
+    },
+    saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(this.tasks));
+    },
+    addTask() {
+      if (this.newTask.trim() === '') return;
+      this.tasks.push({ text: this.newTask });
+      this.newTask = '';
+      this.saveTasks();
+    },
+    updateTask(index) {
+      this.saveTasks();
+    },
+    deleteTask(index) {
+      this.tasks.splice(index, 1);
+      this.saveTasks();
+    }
+  }
+};
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+input {
+  margin: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  background-color: #42b983;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+</style>
+

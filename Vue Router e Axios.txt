@@ -1,0 +1,207 @@
+Passo 1: Configuração do Projeto
+Instale o Vite e crie um novo projeto Vue:
+
+bash
+Copiar código
+npm create vite@latest my-vue-crud --template vue
+cd my-vue-crud
+npm install
+Instale o Vue Router e o Axios:
+
+bash
+Copiar código
+npm install vue-router axios
+Passo 2: Configuração do Vue Router
+Crie um arquivo router.js no diretório src:
+
+javascript
+Copiar código
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from './views/Home.vue';
+import CreateTask from './views/CreateTask.vue';
+import EditTask from './views/EditTask.vue';
+
+const routes = [
+  { path: '/', component: Home },
+  { path: '/create', component: CreateTask },
+  { path: '/edit/:id', component: EditTask },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+export default router;
+Modifique o main.js para usar o router:
+
+javascript
+Copiar código
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+
+createApp(App).use(router).mount('#app');
+Passo 3: Criando as Views
+Crie a pasta views dentro de src e adicione os seguintes arquivos:
+
+Home.vue (para listar as tarefas):
+
+vue
+Copiar código
+<template>
+  <div>
+    <h1>Lista de Tarefas</h1>
+    <router-link to="/create">Adicionar Tarefa</router-link>
+    <ul>
+      <li v-for="task in tasks" :key="task.id">
+        {{ task.title }}
+        <button @click="editTask(task.id)">Editar</button>
+        <button @click="deleteTask(task.id)">Excluir</button>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      tasks: [],
+    };
+  },
+  created() {
+    this.fetchTasks();
+  },
+  methods: {
+    fetchTasks() {
+      axios.get('/api/tasks').then(response => {
+        this.tasks = response.data;
+      });
+    },
+    editTask(id) {
+      this.$router.push(`/edit/${id}`);
+    },
+    deleteTask(id) {
+      axios.delete(`/api/tasks/${id}`).then(() => {
+        this.fetchTasks();
+      });
+    },
+  },
+};
+</script>
+CreateTask.vue (para criar uma nova tarefa):
+
+vue
+Copiar código
+<template>
+  <div>
+    <h1>Adicionar Tarefa</h1>
+    <form @submit.prevent="createTask">
+      <label for="title">Título:</label>
+      <input type="text" v-model="title" />
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      title: '',
+    };
+  },
+  methods: {
+    createTask() {
+      axios.post('/api/tasks', { title: this.title }).then(() => {
+        this.$router.push('/');
+      });
+    },
+  },
+};
+</script>
+EditTask.vue (para editar uma tarefa existente):
+
+vue
+Copiar código
+<template>
+  <div>
+    <h1>Editar Tarefa</h1>
+    <form @submit.prevent="updateTask">
+      <label for="title">Título:</label>
+      <input type="text" v-model="title" />
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      title: '',
+      id: null,
+    };
+  },
+  created() {
+    this.id = this.$route.params.id;
+    this.fetchTask();
+  },
+  methods: {
+    fetchTask() {
+      axios.get(`/api/tasks/${this.id}`).then(response => {
+        this.title = response.data.title;
+      });
+    },
+    updateTask() {
+      axios.put(`/api/tasks/${this.id}`, { title: this.title }).then(() => {
+        this.$router.push('/');
+      });
+    },
+  },
+};
+</script>
+Passo 4: Simulação do Backend (opcional)
+Para este exemplo, você pode usar o json-server para simular um backend. Instale-o globalmente:
+
+bash
+Copiar código
+npm install -g json-server
+Crie um arquivo db.json no diretório raiz do projeto com o seguinte conteúdo:
+
+json
+Copiar código
+{
+  "tasks": [
+    { "id": 1, "title": "Estudar Vue.js" },
+    { "id": 2, "title": "Criar um projeto com Vite" }
+  ]
+}
+Inicie o json-server:
+
+bash
+Copiar código
+json-server --watch db.json --port 3000
+Atualize os endpoints no seu código Vue para usar a URL do json-server:
+
+javascript
+Copiar código
+axios.get('http://localhost:3000/tasks').then(response => {
+  this.tasks = response.data;
+});
+
+Passo 5: Executar o Projeto
+Execute o projeto com:
+ ------------ bash ------------ 
+Copiar código
+
+ ------------ npm run dev ------------ 
+
+Agora você deve ter um CRUD básico funcionando com Vue.js e Vite. Você pode acessar, adicionar, editar e deletar tarefas.
